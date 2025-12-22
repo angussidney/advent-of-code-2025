@@ -59,14 +59,14 @@ mod tests {
 
     #[test]
     fn sample() {
-        let data = include_str!("../tests/day1a/sample.txt").lines();
+        let data = include_str!("../tests/day1/sample.txt").lines();
         assert_eq!(run(data), 3);
     }
 
     #[test]
     #[ignore]
     fn challenge() {
-        let data = include_str!("../tests/day1a/challenge.txt").lines();
+        let data = include_str!("../tests/day1/challenge.txt").lines();
         assert_eq!(run(data), 1147);
     }
 }

@@ -14,11 +14,12 @@ fn main() {
         println!("Usage: advent-of-code <day> <testcase_type>");
         exit(1);
     }
-    let day = &args[1];
+    let day_variant = &args[1];
+    let day = day_variant.get(..day_variant.len() - 1).unwrap();
     let testcase_type = &args[2];
 
-    if !DAYS.contains_key(&day) {
-        println!("{day} has no implementation currently.");
+    if !DAYS.contains_key(&day_variant) {
+        println!("{day_variant} has no implementation currently.");
         exit(1);
     }
 
@@ -31,13 +32,13 @@ fn main() {
         .expect("Input files not present for chosen day!");
     let test_data = file_contents.lines();
 
-    if let Some(func) = DAYS.get(&day) {
-        println!("Running {day} with input file {testcase_type}.txt\n");
+    if let Some(func) = DAYS.get(&day_variant) {
+        println!("Running {day_variant} with input file {testcase_type}.txt\n");
 
         let result = func(test_data);
         println!("{result}");
     } else {
-        println!("{day} has no implementation currently.");
+        println!("{day_variant} has no implementation currently.");
         exit(1);
     }
 }
