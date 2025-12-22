@@ -3,9 +3,11 @@ use std::fs;
 use std::{env, process::exit, str::Lines};
 
 mod day1a;
+mod day1b;
 
 static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day1a" => day1a::run,
+    "day1b" => day1b::run,
 };
 
 fn main() {
