@@ -5,11 +5,13 @@ use std::{env, process::exit, str::Lines};
 mod day1a;
 mod day1b;
 mod day2a;
+mod day2b;
 
 static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day1a" => day1a::run,
     "day1b" => day1b::run,
     "day2a" => day2a::run,
+    "day2b" => day2b::run,
 };
 
 fn main() {
