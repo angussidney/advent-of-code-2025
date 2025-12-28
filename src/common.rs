@@ -46,6 +46,20 @@ impl<T: Copy + Clone> Grid<T> {
         }
     }
 
+    fn print<F>(&self, mapping: F)
+    where
+        F: Fn(T) -> &'static str,
+    {
+        for row in self.grid.borrow().iter() {
+            let chars = row
+                .iter()
+                .map(|sq| mapping(*sq))
+                .collect::<Vec<&str>>()
+                .concat();
+            println!("{chars}");
+        }
+    }
+
     fn get_unchecked(&self, coord: GridCoord) -> T {
         return self.grid.borrow()[coord.y][coord.x];
     }
@@ -81,14 +95,15 @@ impl<T: Copy + Clone> Grid<T> {
 
     pub fn map<F, U>(&self, func: F) -> Grid<U>
     where
-        F: Fn(GridCoord) -> U,
+        F: Fn(GridCoord, T) -> U,
     {
         let mut new_grid = Vec::with_capacity(self.height);
 
         for x in 0..self.height {
             let mut row = Vec::with_capacity(self.width);
             for y in 0..self.width {
-                row.push(func(GridCoord { x, y }));
+                let coord = GridCoord { x, y };
+                row.push(func(coord, self.get_unchecked(coord)));
             }
             new_grid.push(row);
         }
