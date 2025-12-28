@@ -46,7 +46,7 @@ impl<T: Copy + Clone> Grid<T> {
         }
     }
 
-    fn print<F>(&self, mapping: F)
+    pub fn print<F>(&self, mapping: F)
     where
         F: Fn(T) -> &'static str,
     {
@@ -93,9 +93,9 @@ impl<T: Copy + Clone> Grid<T> {
         Some(GridCoord { x: new_x, y: new_y })
     }
 
-    pub fn map<F, U>(&self, func: F) -> Grid<U>
+    pub fn map<F, U>(&self, mut func: F) -> Grid<U>
     where
-        F: Fn(GridCoord, T) -> U,
+        F: FnMut(GridCoord, T) -> U,
     {
         let mut new_grid = Vec::with_capacity(self.height);
 
