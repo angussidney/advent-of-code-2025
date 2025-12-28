@@ -22,10 +22,18 @@ fn parse_input(input: Lines) -> Model {
 }
 
 fn calculate_result(model: Model) -> usize {
-    // while loop to fill in reachable squares
-    // or just don't worry about it??
+    let adj_rolls = model.grid.map(|coord| {
+        model
+            .grid
+            .iter_diag_adj(coord)
+            .filter(|(_, sq)| *sq == GridSq::PaperRoll)
+            .count()
+    });
 
-    0
+    return adj_rolls
+        .iter_squares()
+        .filter(|(_, count)| *count < 4)
+        .count();
 }
 
 pub fn run(input: Lines) -> usize {

@@ -1,19 +1,20 @@
+use std::cell::RefCell;
 use std::str::Lines;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
-struct GridCoord {
+pub struct GridCoord {
     x: usize,
     y: usize,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy)]
-struct GridOffset {
+pub struct GridOffset {
     dx: isize,
     dy: isize,
 }
 
 pub struct Grid<T> {
-    grid: Vec<Vec<T>>,
+    grid: RefCell<Vec<Vec<T>>>,
     width: usize,
     height: usize,
 }
@@ -39,17 +40,21 @@ impl<T: Copy + Clone> Grid<T> {
             rows.push(row);
         }
         Grid {
-            grid: rows,
+            grid: RefCell::new(rows),
             width: width.expect("Must be at least one line in input grid"),
             height: height,
         }
+    }
+
+    fn get_unchecked(&self, coord: GridCoord) -> T {
+        return self.grid.borrow()[coord.y][coord.x];
     }
 
     pub fn get(&self, coord: GridCoord) -> Option<T> {
         if coord.x >= self.width || coord.y >= self.height {
             return None;
         } else {
-            return Some(self.grid[coord.y][coord.x]);
+            return Some(self.get_unchecked(coord));
         }
     }
 
@@ -74,7 +79,28 @@ impl<T: Copy + Clone> Grid<T> {
         Some(GridCoord { x: new_x, y: new_y })
     }
 
-    pub fn iter_diag_adj(&self, coord: GridCoord) -> GridIter<T> {
+    pub fn map<F, U>(&self, func: F) -> Grid<U>
+    where
+        F: Fn(GridCoord) -> U,
+    {
+        let mut new_grid = Vec::with_capacity(self.height);
+
+        for x in 0..self.height {
+            let mut row = Vec::with_capacity(self.width);
+            for y in 0..self.width {
+                row.push(func(GridCoord { x, y }));
+            }
+            new_grid.push(row);
+        }
+
+        Grid {
+            grid: RefCell::new(new_grid),
+            width: self.width,
+            height: self.height,
+        }
+    }
+
+    pub fn iter_diag_adj(&self, coord: GridCoord) -> GridIter<'_, T> {
         GridIter {
             grid: self,
             index: 0,
@@ -82,7 +108,7 @@ impl<T: Copy + Clone> Grid<T> {
         }
     }
 
-    pub fn iter_cardinal_adj(&self, coord: GridCoord) -> GridIter<T> {
+    pub fn iter_cardinal_adj(&self, coord: GridCoord) -> GridIter<'_, T> {
         GridIter {
             grid: self,
             index: 0,
@@ -90,7 +116,7 @@ impl<T: Copy + Clone> Grid<T> {
         }
     }
 
-    pub fn iter_squares(&self) -> GridIter<T> {
+    pub fn iter_squares(&self) -> GridIter<'_, T> {
         GridIter {
             grid: self,
             index: 0,
@@ -106,7 +132,7 @@ enum GridIterTypes {
     CardinalAdjSquares(GridCoord),
 }
 
-struct GridIter<'a, T> {
+pub struct GridIter<'a, T> {
     grid: &'a Grid<T>,
     index: usize,
     iter_type: GridIterTypes,
@@ -156,14 +182,9 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
 
                 let off = CARD_ADJ[curr_index];
-                let new = self.grid.get_offset_coords(coord, off);
-                match new {
-                    Some(new_coords) => Some((
-                        new_coords,
-                        self.grid
-                            .get(new_coords)
-                            .expect("get_offset_coords() and get() disagree"),
-                    )),
+                let new_coords = self.grid.get_offset_coords(coord, off);
+                match new_coords {
+                    Some(new) => Some((new, self.grid.get_unchecked(new))),
                     None => self.next(),
                 }
             }
@@ -173,14 +194,9 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
 
                 let off = DIAG_ADJ[curr_index];
-                let new = self.grid.get_offset_coords(coord, off);
-                match new {
-                    Some(new_coords) => Some((
-                        new_coords,
-                        self.grid
-                            .get(new_coords)
-                            .expect("get_offset_coords() and get() disagree"),
-                    )),
+                let new_coords = self.grid.get_offset_coords(coord, off);
+                match new_coords {
+                    Some(new) => Some((new, self.grid.get_unchecked(new))),
                     None => self.next(),
                 }
             }
