@@ -2,12 +2,14 @@ use phf::phf_map;
 use std::fs;
 use std::{env, process::exit, str::Lines};
 
+mod common;
 mod day1a;
 mod day1b;
 mod day2a;
 mod day2b;
 mod day3a;
 mod day3b;
+mod day4a;
 
 static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day1a" => day1a::run,
@@ -16,6 +18,7 @@ static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day2b" => day2b::run,
     "day3a" => day3a::run,
     "day3b" => day3b::run,
+    "day4a" => day4a::run,
 };
 
 fn main() {
