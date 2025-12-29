@@ -1,5 +1,5 @@
 use crate::common::Range;
-use std::str::Lines;
+use std::{collections::HashSet, hash::RandomState, str::Lines};
 
 struct Model {
     ranges: Vec<Range>,
@@ -31,28 +31,41 @@ fn calculate_result(model: Model) -> usize {
 
     while i < ranges.len() {
         let curr_range = ranges[i];
-        // println!("Currently examining {curr_range:?}");
+        assert!(curr_range.start <= curr_range.end);
+        println!("Currently examining {curr_range:?}");
+
         ranges.retain_mut(|other_range| {
+            assert!(other_range.start <= other_range.end);
+
+            // If the start is less than our start, it is before us
+            // in the vec, so it is guaranteed that there is no overlapping
+            if other_range.start < curr_range.start {
+                // println!("  keep {other_range:?} unchanged (before)");
+                assert!(other_range.end < curr_range.start);
+                return true;
+            }
+
+            // Keep the current range
+            // TODO could we be double counting here?
             if curr_range == *other_range {
                 return true;
-            } else if other_range.start < curr_range.start {
-                // If the start is less than our start, it is before us
-                // in the vec, so it is guaranteed that there is no overlapping
-                // println!("  keep {other_range:?} unchanged (before)");
-                return true;
-            } else if other_range.end <= curr_range.end {
-                // Remove it if entirely contained in this range
-                // println!("  removing {other_range:?}");
-                return false;
-            } else if other_range.start <= curr_range.end {
-                // Overlapping with our range: remove the overlapping region
-                let new_val = curr_range.end + 1;
-                // println!("  changing {other_range:?} to {new_val}");
-                other_range.start = curr_range.end + 1;
-                return true;
-            } else {
+            }
+
+            // Keep any following, non-overlapping ranges
+            if other_range.start > curr_range.end {
                 // println!("  keep {other_range:?} unchanged (after)");
-                // Starting after us, so no overlap: keep for later examination
+                return true;
+            }
+
+            if other_range.end <= curr_range.end {
+                // Remove it if entirely contained in this range
+                println!("  removing {other_range:?}");
+                return false;
+            } else {
+                // Partially overlapping with our range: remove the overlapping region
+                let new_val = curr_range.end + 1;
+                println!("  changing {other_range:?} to {new_val}");
+                other_range.start = curr_range.end + 1;
                 return true;
             }
         });
@@ -60,8 +73,11 @@ fn calculate_result(model: Model) -> usize {
         ranges.sort();
     }
 
+    let unique_ranges: HashSet<&Range, RandomState> = HashSet::from_iter(ranges.iter());
+
     let mut total = 0;
-    for range in ranges {
+    for range in unique_ranges {
+        assert!(range.start <= range.end);
         total += range.end - range.start + 1;
     }
     total
@@ -86,6 +102,6 @@ mod tests {
     #[ignore]
     fn challenge() {
         let data = include_str!("../tests/day5/challenge.txt").lines();
-        assert_eq!(run(data), 674);
+        assert_eq!(run(data), 352509891817881);
     }
 }
