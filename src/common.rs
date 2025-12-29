@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::str::Lines;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct Range {
     pub start: usize,
     pub end: usize,
