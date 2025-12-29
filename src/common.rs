@@ -1,6 +1,12 @@
 use std::cell::RefCell;
 use std::str::Lines;
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub struct Range {
+    pub start: usize,
+    pub end: usize,
+}
+
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct GridCoord {
     x: usize,

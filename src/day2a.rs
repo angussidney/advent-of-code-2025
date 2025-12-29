@@ -1,10 +1,5 @@
+use crate::common::Range;
 use std::str::Lines;
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-struct Range {
-    start: usize,
-    end: usize,
-}
 
 struct Model {
     ranges: Vec<Range>,
