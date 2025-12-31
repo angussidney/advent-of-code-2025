@@ -7,7 +7,7 @@ pub struct Range {
     pub end: usize,
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub struct GridCoord {
     x: usize,
     y: usize,
@@ -15,8 +15,15 @@ pub struct GridCoord {
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct GridOffset {
-    dx: isize,
-    dy: isize,
+    pub dx: isize,
+    pub dy: isize,
+}
+
+impl GridOffset {
+    pub const LEFT: GridOffset = GridOffset { dx: -1, dy: 0 };
+    pub const RIGHT: GridOffset = GridOffset { dx: 1, dy: 0 };
+    pub const UP: GridOffset = GridOffset { dx: 0, dy: -1 };
+    pub const DOWN: GridOffset = GridOffset { dx: 0, dy: 1 };
 }
 
 pub struct Grid<T> {
@@ -66,6 +73,17 @@ impl<T: Copy + Clone> Grid<T> {
         }
     }
 
+    pub fn offset_coord(&self, coord: GridCoord, off: GridOffset) -> Option<GridCoord> {
+        let new_x = coord.x.checked_add_signed(off.dx)?;
+        let new_y = coord.y.checked_add_signed(off.dy)?;
+
+        if new_x >= self.width || new_y >= self.height {
+            return None;
+        }
+
+        Some(GridCoord { x: new_x, y: new_y })
+    }
+
     fn get_unchecked(&self, coord: GridCoord) -> T {
         return self.grid.borrow()[coord.y][coord.x];
     }
@@ -88,15 +106,30 @@ impl<T: Copy + Clone> Grid<T> {
         });
     }
 
-    pub fn get_offset_coords(&self, coord: GridCoord, off: GridOffset) -> Option<GridCoord> {
-        let new_x = coord.x.checked_add_signed(off.dx)?;
-        let new_y = coord.y.checked_add_signed(off.dy)?;
+    fn set_unchecked(&self, coord: GridCoord, val: T) -> T {
+        let mut vec = self.grid.borrow_mut();
+        std::mem::replace(&mut vec[coord.y][coord.x], val)
+    }
 
-        if new_x >= self.width || new_y >= self.height {
+    pub fn set(&self, coord: GridCoord, val: T) -> Option<T> {
+        if coord.x >= self.width || coord.y >= self.height {
             return None;
+        } else {
+            return Some(self.set_unchecked(coord, val));
         }
+    }
 
-        Some(GridCoord { x: new_x, y: new_y })
+    pub fn set_offset(&self, coord: GridCoord, off: GridOffset, val: T) -> Option<T> {
+        let new_x = coord.x.checked_add_signed(off.dx);
+        let new_y = coord.y.checked_add_signed(off.dy);
+
+        return self.set(
+            GridCoord {
+                x: new_x?,
+                y: new_y?,
+            },
+            val,
+        );
     }
 
     pub fn map<F, U>(&self, mut func: F) -> Grid<U>
@@ -203,7 +236,7 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
 
                 let off = CARD_ADJ[curr_index];
-                let new_coords = self.grid.get_offset_coords(coord, off);
+                let new_coords = self.grid.offset_coord(coord, off);
                 match new_coords {
                     Some(new) => Some((new, self.grid.get_unchecked(new))),
                     None => self.next(),
@@ -215,7 +248,7 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
 
                 let off = DIAG_ADJ[curr_index];
-                let new_coords = self.grid.get_offset_coords(coord, off);
+                let new_coords = self.grid.offset_coord(coord, off);
                 match new_coords {
                     Some(new) => Some((new, self.grid.get_unchecked(new))),
                     None => self.next(),
