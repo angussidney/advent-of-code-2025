@@ -1,12 +1,6 @@
 use crate::common::{Grid, GridCoord, GridOffset};
 use std::{collections::HashSet, str::Lines};
 
-#[derive(Clone, Copy)]
-enum Operation {
-    Plus,
-    Multiply,
-}
-
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum GridSq {
     Start,

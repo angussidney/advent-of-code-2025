@@ -1,7 +1,4 @@
-use std::{
-    iter::zip,
-    str::{Chars, Lines, SplitWhitespace},
-};
+use std::{iter::zip, str::Lines};
 
 #[derive(Clone, Copy)]
 enum Operation {

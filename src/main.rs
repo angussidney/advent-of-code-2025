@@ -16,6 +16,7 @@ mod day5b;
 mod day6a;
 mod day6b;
 mod day7a;
+mod day7b;
 
 static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day1a" => day1a::run,
@@ -31,6 +32,7 @@ static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day6a" => day6a::run,
     "day6b" => day6b::run,
     "day7a" => day7a::run,
+    "day7b" => day7b::run,
 };
 
 fn main() {

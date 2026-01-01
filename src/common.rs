@@ -225,8 +225,8 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
 
                 let coord = GridCoord {
-                    x: curr_index / self.grid.width,
-                    y: curr_index % self.grid.width,
+                    x: curr_index % self.grid.width,
+                    y: curr_index / self.grid.width,
                 };
                 return Some((coord, self.grid.get(coord).unwrap()));
             }
