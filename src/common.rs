@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::fmt;
 use std::str::Lines;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
@@ -255,5 +256,39 @@ impl<T: Clone + Copy> Iterator for GridIter<'_, T> {
                 }
             }
         }
+    }
+}
+
+pub struct Point<const N: usize> {
+    pub coords: [f64; N],
+}
+
+impl<const N: usize> Point<N> {
+    pub fn from_str(input: &str) -> Point<N> {
+        let nums: Vec<f64> = input.split(",").map(|n| n.parse().unwrap()).collect();
+        let arr = nums
+            .try_into()
+            .unwrap_or_else(|_| panic!("Input {input} did not have exactly {N} coordinates"));
+        Point { coords: arr }
+    }
+
+    pub fn dist(&self, other: &Point<N>) -> f64 {
+        self.coords
+            .iter()
+            .zip(other.coords.iter())
+            .map(|(l, r)| (l - r).powi(2))
+            .reduce(|a, b| a + b)
+            .unwrap()
+            .sqrt()
+    }
+}
+
+impl<const N: usize> fmt::Display for Point<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            self.coords.map(|c| (c as usize).to_string()).join(",")
+        )
     }
 }
