@@ -28,7 +28,7 @@ fn calculate_result(model: Model) -> usize {
         let second_digit = bank[first_index + 1..bank.len()].iter().max().unwrap();
 
         let jolts = first_digit * 10 + second_digit;
-        println!("{jolts}");
+        // println!("{jolts}");
         total_jolts += jolts;
     }
 

@@ -32,7 +32,7 @@ fn calculate_result(model: Model) -> usize {
     while i < ranges.len() {
         let curr_range = ranges[i];
         assert!(curr_range.start <= curr_range.end);
-        println!("Currently examining {curr_range:?}");
+        // println!("Currently examining {curr_range:?}");
 
         ranges.retain_mut(|other_range| {
             assert!(other_range.start <= other_range.end);
@@ -59,12 +59,12 @@ fn calculate_result(model: Model) -> usize {
 
             if other_range.end <= curr_range.end {
                 // Remove it if entirely contained in this range
-                println!("  removing {other_range:?}");
+                // println!("  removing {other_range:?}");
                 return false;
             } else {
                 // Partially overlapping with our range: remove the overlapping region
                 let new_val = curr_range.end + 1;
-                println!("  changing {other_range:?} to {new_val}");
+                // println!("  changing {other_range:?} to {new_val}");
                 other_range.start = curr_range.end + 1;
                 return true;
             }

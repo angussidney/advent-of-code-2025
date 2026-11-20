@@ -17,7 +17,7 @@ mod day6a;
 mod day6b;
 mod day7a;
 mod day7b;
-mod day8a;
+// mod day8a;
 
 static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day1a" => day1a::run,
@@ -34,19 +34,25 @@ static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
     "day6b" => day6b::run,
     "day7a" => day7a::run,
     "day7b" => day7b::run,
-    "day8a" => day8a::run,
+    // "day8a" => day8a::run,
 };
 
-fn main() {
-    let args: Vec<_> = env::args().collect();
-    if args.len() < 3 {
-        println!("Usage: advent-of-code <day> <testcase_type>");
-        exit(1);
-    }
-    let day_variant = &args[1];
-    let day = day_variant.get(..day_variant.len() - 1).unwrap();
-    let testcase_type = &args[2];
+fn run_all() {
+    for (day, func) in DAYS.entries() {
+        let dayprefix = day.get(..day.len() - 1).unwrap();
+        for testcase_type in ["sample", "challenge"] {
+            let file_contents =
+                fs::read_to_string(format!("tests/{dayprefix}/{testcase_type}.txt"))
+                    .expect("Input files not present for chosen day!");
+            let test_data = file_contents.lines();
 
+            let result = func(test_data);
+            println!("{day}: {result}");
+        }
+    }
+}
+
+fn run_one(day_variant: &str, testcase_type: &str) {
     if !DAYS.contains_key(&day_variant) {
         println!("{day_variant} has no implementation currently.");
         exit(1);
@@ -57,6 +63,7 @@ fn main() {
         exit(1);
     }
 
+    let day = day_variant.get(..day_variant.len() - 1).unwrap();
     let file_contents = fs::read_to_string(format!("tests/{day}/{testcase_type}.txt"))
         .expect("Input files not present for chosen day!");
     let test_data = file_contents.lines();
@@ -68,6 +75,20 @@ fn main() {
         println!("{result}");
     } else {
         println!("{day_variant} has no implementation currently.");
+        exit(1);
+    }
+}
+
+fn main() {
+    let args: Vec<_> = env::args().collect();
+    if args.len() == 1 {
+        run_all();
+    } else if args.len() == 3 {
+        let day_variant = &args[1];
+        let testcase_type = &args[2];
+        run_one(day_variant, testcase_type);
+    } else {
+        println!("Usage: advent-of-code <day> <testcase_type>");
         exit(1);
     }
 }
