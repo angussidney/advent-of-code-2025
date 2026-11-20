@@ -38,7 +38,9 @@ static DAYS: phf::Map<&str, fn(Lines) -> usize> = phf_map! {
 };
 
 fn run_all() {
-    for (day, func) in DAYS.entries() {
+    let mut days = DAYS.entries().collect::<Vec<_>>();
+    days.sort();
+    for (day, func) in days {
         let dayprefix = day.get(..day.len() - 1).unwrap();
         for testcase_type in ["sample", "challenge"] {
             let file_contents =
@@ -47,7 +49,7 @@ fn run_all() {
             let test_data = file_contents.lines();
 
             let result = func(test_data);
-            println!("{day}: {result}");
+            println!("{day} {testcase_type:>10}: {result}");
         }
     }
 }
